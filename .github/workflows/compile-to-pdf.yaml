@@ -28,7 +28,7 @@ jobs:
           typst compile main.typ
 
       - name: Upload PDF
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: main.pdf
           path: main.pdf
