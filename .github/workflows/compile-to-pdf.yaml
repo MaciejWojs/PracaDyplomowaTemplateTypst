@@ -27,8 +27,7 @@ jobs:
         run: |
           typst compile main.typ
 
-      - name: Upload PDF
-        uses: actions/upload-artifact@v7
+      - name: Release
+        uses: softprops/action-gh-release@v3
         with:
-          name: main.pdf
-          path: main.pdf
+          files: main.pdf
