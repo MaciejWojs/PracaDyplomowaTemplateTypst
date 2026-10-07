@@ -1,3 +1,3 @@
 FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu
 
-RUN snap install typst
+COPY --from=ghcr.io/typst/typst /bin/typst /usr/local/bin/typst
