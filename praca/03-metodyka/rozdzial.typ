@@ -22,9 +22,6 @@ Układ dzielnika pokazano na #rys(<dzielnik>). Rezystory $R_1$ i $R_2$ wyznaczaj
   $Z$ -- impedancja [$Omega$].
 ])[$ I = U / Z $ <dzielnik-prad>]
 
-// Pliki graficzne tego rozdziału leżą w sources/.
-// Ścieżka jest liczona od tego pliku, np.:
-// #rysunek(image("sources/schemat.png", width: 12cm), [Tytuł rysunku]) <etykieta>
 #rysunek(
   {
     set text(size: 10pt)
@@ -45,6 +42,14 @@ Układ dzielnika pokazano na #rys(<dzielnik>). Rezystory $R_1$ i $R_2$ wyznaczaj
   [Schemat dzielnika napięcia],
   zrodlo: [opracowanie własne],
 ) <dzielnik>
+
+Zależności między książką, zamówieniem i użytkownikiem pokazano na #rys(<model-dziedziny>). Kategoria grupuje książki, a zamówienie składa się z pozycji powiązanych z konkretnym tytułem.
+
+#rysunek(
+  image("sources/example.png", width: 100%),
+  [Diagram klas modelu dziedziny],
+  zrodlo: [opracowanie własne],
+) <model-dziedziny>
 
 Wartości zebrane w toku pomiaru zestawiono w #tab(<jakosc>). Tej samej serii liczb nie powtarza się równolegle na wykresie.
 
