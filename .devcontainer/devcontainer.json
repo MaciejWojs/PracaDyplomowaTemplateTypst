@@ -1,4 +1,7 @@
 {
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
   "features": {},
   "customizations": {
     // Configure properties specific to VS Code.
