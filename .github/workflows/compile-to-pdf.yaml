@@ -1,6 +1,7 @@
-on: 
-  tags:
-    - 'v*'
+on:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   compile:
