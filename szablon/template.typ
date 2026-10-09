@@ -11,6 +11,13 @@
 #let font-serif = ("Times New Roman", "Liberation Serif")
 #let font-mono = ("Courier New", "Liberation Mono")
 
+// Interlinia 1,5 przy 12 pkt: odstęp między wierszami ok. 21 pkt,
+// jak w dokumencie wydziałowym. Jedna wolna linia to ten sam odstęp.
+#let interlinia = 13.15pt
+#let linia = 21pt
+// Kod programu: interlinia pojedyncza przy 10 pkt.
+#let interlinia-kod = 5.5pt
+
 #let zrodla-rys = state("zrodla-rys", ())
 
 // --- strona tytułowa -------------------------------------------------------
@@ -122,15 +129,16 @@
 #let wzor(rownanie, objasnienia: none) = {
   rownanie
   if objasnienia != none {
-    set par(first-line-indent: 0pt, justify: false, leading: 0.4em, spacing: 0.25em)
+    v(-17pt)
+    set par(first-line-indent: 0pt, justify: false, leading: interlinia, spacing: interlinia)
     set text(size: 12pt)
-    block(inset: (left: 0.75cm), above: 0pt, below: 6pt)[#objasnienia]
+    block(inset: (left: 0.75cm), above: 0pt, below: linia)[#objasnienia]
   }
 }
 
 // Cytat od 40 słów: blok wcięty o 0,75 cm, bez cudzysłowu.
 #let cytat(tresc, odsylacz: none) = {
-  set par(first-line-indent: (amount: 0.375cm, all: true), justify: true, leading: 0.5em)
+  set par(first-line-indent: (amount: 0.375cm, all: true), justify: true, leading: interlinia)
   block(inset: (left: 0.75cm), above: 6pt, below: 6pt)[
     #tresc
     #if odsylacz != none [ #odsylacz]
@@ -149,9 +157,15 @@
   tresc
 }
 
-#let bibliografia(plik: "/praca/literatura.bib") = {
+#let bibliografia(
+  plik: "/praca/literatura.bib",
+  zrodla-internetowe: "/praca/netografia.bib",
+) = {
   heading(level: 1, numbering: none)[Bibliografia]
   bibliography(plik, title: none, style: "/szablon/style/ans-harvard.csl")
+  heading(level: 2, numbering: none, outlined: true)[Źródła internetowe]
+  set par(justify: false)
+  bibliography(zrodla-internetowe, title: none, style: "/szablon/style/ans-harvard.csl")
 }
 
 #let spis-tresci() = {
@@ -227,8 +241,8 @@
   )
 
   set par(
-    leading: 0.5em,
-    spacing: 0.5em,
+    leading: interlinia,
+    spacing: interlinia,
     justify: true,
     first-line-indent: (amount: 0.75cm, all: true),
     linebreaks: "optimized",
@@ -238,8 +252,8 @@
   set figure(numbering: "1", gap: 0.6em)
   set figure.caption(separator: [. ])
   set math.equation(numbering: "(1)", supplement: [])
-  set list(indent: 0.75cm, body-indent: 0.45em, spacing: 0.5em, marker: ([•], [–], [·]))
-  set enum(indent: 0.75cm, body-indent: 0.45em, spacing: 0.5em, numbering: "1)")
+  set list(indent: 0.75cm, body-indent: 0.45em, spacing: interlinia, marker: ([•], [–], [·]))
+  set enum(indent: 0.75cm, body-indent: 0.45em, spacing: interlinia, numbering: "1)")
   set table(stroke: 0.5pt, inset: (x: 6pt, y: 4pt), align: center)
   set quote(block: true)
   set smartquote(quotes: "„”", alternative: true)
@@ -261,15 +275,36 @@
   }
 
   show outline: set text(size: 12pt)
-  show outline.entry: set par(first-line-indent: 0pt, justify: false, leading: 0.55em, spacing: 0.45em)
-  show outline.entry: set block(above: 0.3em, below: 0.3em)
+  show outline.entry: set par(
+    first-line-indent: 0pt,
+    justify: false,
+    leading: interlinia,
+    spacing: interlinia,
+  )
+  show outline.entry: set block(above: 12.7pt, below: 12.7pt)
+  // Wykazy rysunków, tabel i załączników: 11 pkt. Po numerze rysunku kropka.
+  show outline.entry: it => {
+    if it.element.func() != figure {
+      it
+    } else {
+      let rodzaj = it.element.kind
+      let prefix = if rodzaj == image or rodzaj == "zalacznik" {
+        [#it.prefix().]
+      } else {
+        it.prefix()
+      }
+      set text(size: 11pt)
+      set par(leading: interlinia, spacing: interlinia, first-line-indent: 0pt)
+      link(it.element.location(), it.indented(prefix, it.inner()))
+    }
+  }
 
   show footnote.entry: set text(size: 10pt)
   show footnote.entry: set par(leading: 0.35em, spacing: 0.35em, first-line-indent: 0pt, justify: false)
 
   show raw: set text(font: font-mono, size: 10pt)
   show raw.where(block: true): it => {
-    set par(leading: 0.15em, spacing: 0.15em, first-line-indent: 0pt, justify: false)
+    set par(leading: interlinia-kod, spacing: interlinia-kod, first-line-indent: 0pt, justify: false)
     set text(hyphenate: false)
     block(
       width: 100%,
@@ -283,14 +318,14 @@
     )
   }
 
-  show math.equation.where(block: true): set block(above: 18pt, below: 12pt)
+  show math.equation.where(block: true): set block(above: linia, below: linia)
   show math.equation: set text(weight: "regular")
 
   show figure.where(kind: image): it => {
     set par(first-line-indent: 0pt, justify: false, leading: 0.35em)
     let nawias-l = "\u{005B}"
     let nawias-p = "\u{005D}"
-    block(above: 18pt, below: 18pt, breakable: false)[
+    block(above: linia, below: linia, breakable: false)[
       #align(center, it.body)
       #v(6pt)
       #align(center)[
@@ -314,7 +349,7 @@
 
   show figure.where(kind: table): it => {
     set par(first-line-indent: 0pt, justify: false)
-    block(above: 18pt, below: 18pt)[
+    block(above: linia, below: linia)[
       #align(right, text(size: 11pt)[
         Tabela #context counter(figure.where(kind: table)).display() \
         #it.caption.body
@@ -336,8 +371,8 @@
   show bibliography: set par(
     justify: false,
     first-line-indent: 0pt,
-    leading: 0.45em,
-    spacing: 0.8em,
+    leading: interlinia,
+    spacing: interlinia,
   )
   show bibliography: set text(size: 12pt)
 
