@@ -14,17 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
-      - name: install microsoft fonts
-        run: |
-          echo 'ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true' | sudo debconf-set-selections
-          sudo apt-get update
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ttf-mscorefonts-installer
-          sudo fc-cache -f -v
-
-      - name: install typst
-        run: |
-          sudo snap install typst
-
       - name: Compile PDF
         run: |
           typst compile main.typ
