@@ -247,7 +247,7 @@
     first-line-indent: (amount: 0.75cm, all: true),
     linebreaks: "optimized",
   )
-  set heading(numbering: "1.1.1.")
+  set heading(numbering: "1.1.1")
   set outline(depth: 3, indent: auto)
   set figure(numbering: "1", gap: 0.6em)
   set figure.caption(separator: [. ])
@@ -338,15 +338,16 @@
       #context {
         let n = counter(figure.where(kind: image)).get().first()
         let lista = zrodla-rys.get()
-        if n > 0 and n <= lista.len() {
-          let opis = lista.at(n - 1)
-          let podpis = [źródło: #opis]
+        if n > 0 and n <= lista.len() and lista.at(n - 1) != none {
+          let podpis = [źródło: #lista.at(n - 1)]
           align(center, text(size: 10pt, style: "italic")[#nawias-l#podpis#nawias-p])
         }
       }
     ]
   }
 
+  // Długa tabela może przejść na kolejną stronę; nagłówek powtarza `table.header`.
+  show figure.where(kind: table): set block(breakable: true)
   show figure.where(kind: table): it => {
     set par(first-line-indent: 0pt, justify: false)
     block(above: linia, below: linia)[
