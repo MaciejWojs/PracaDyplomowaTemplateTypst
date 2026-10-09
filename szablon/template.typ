@@ -11,12 +11,23 @@
 #let font-serif = ("Times New Roman", "Liberation Serif")
 #let font-mono = ("Courier New", "Liberation Mono")
 
-// Interlinia 1,5 przy 12 pkt: odstęp między wierszami ok. 21 pkt,
-// jak w dokumencie wydziałowym. Jedna wolna linia to ten sam odstęp.
-#let interlinia = 13.15pt
-#let linia = 21pt
-// Kod programu: interlinia pojedyncza przy 10 pkt.
-#let interlinia-kod = 5.5pt
+// --- odstępy ---------------------------------------------------------------
+//
+// Wiersz tekstu ma wysokość dokładnie 1 em (0,8 em nad linią bazową,
+// 0,2 em pod nią), więc `par.leading` to krok wiersza minus 1 em.
+// Krok wiersza liczy się jak w edytorze tekstu: mnożnik interlinii razy
+// naturalna wysokość wiersza Times New Roman (1,15 em, z metryk czcionki).
+// Wartości są w em, więc skalują się z rozmiarem czcionki: ta sama interlinia
+// pojedyncza daje poprawny odstęp w kodzie 10 pkt i w podpisach 11 pkt.
+#let wiersz-gora = 0.8em
+#let wiersz-dol = -0.2em
+#let wysokosc-wiersza = 1.15em
+#let odstep(mnoznik) = mnoznik * wysokosc-wiersza - 1em
+
+#let interlinia = odstep(1.5)
+#let interlinia-pojedyncza = odstep(1)
+// Pusty wiersz między blokami: zwykły odstęp plus jeden wiersz 1,5.
+#let wolna-linia = interlinia + 1.5 * wysokosc-wiersza
 
 #let zrodla-rys = state("zrodla-rys", ())
 
@@ -103,14 +114,12 @@
 #let tabela(tytul, tresc, zrodlo: "opracowanie własne", uwagi: none) = figure(
   {
     set text(size: 10pt, weight: "regular")
-    set par(leading: 0.35em, first-line-indent: 0pt, justify: false)
+    set par(leading: interlinia-pojedyncza, spacing: interlinia-pojedyncza, first-line-indent: 0pt, justify: false)
     tresc
     if zrodlo != none {
-      v(4pt)
       align(center, text(size: 10pt, style: "italic")[Źródło: #zrodlo])
     }
     if uwagi != none {
-      v(2pt)
       align(left, text(size: 10pt, style: "normal")[#uwagi])
     }
   },
@@ -126,20 +135,22 @@
 
 // Równanie z objaśnieniem symboli. Sam wzór numeruje się z prawej strony.
 // Wywołanie: `#wzor(objasnienia: [gdzie: $I$ -- natężenie prądu [A].])[$ I = U / Z $ <ozn>]`
+// Odstępy między blokami Typst łączy do większej wartości, dlatego wzór
+// z objaśnieniem dostaje mniejszy odstęp dolny, a wolna linia idzie pod objaśnienie.
 #let wzor(rownanie, objasnienia: none) = {
-  rownanie
-  if objasnienia != none {
-    v(-17pt)
-    set par(first-line-indent: 0pt, justify: false, leading: interlinia, spacing: interlinia)
-    set text(size: 12pt)
-    block(inset: (left: 0.75cm), above: 0pt, below: linia)[#objasnienia]
+  if objasnienia == none {
+    return rownanie
   }
+  show math.equation.where(block: true): set block(below: interlinia)
+  rownanie
+  set par(first-line-indent: 0pt, justify: false, leading: interlinia, spacing: interlinia)
+  block(inset: (left: 0.75cm), above: interlinia, below: wolna-linia)[#objasnienia]
 }
 
 // Cytat od 40 słów: blok wcięty o 0,75 cm, bez cudzysłowu.
 #let cytat(tresc, odsylacz: none) = {
-  set par(first-line-indent: (amount: 0.375cm, all: true), justify: true, leading: interlinia)
-  block(inset: (left: 0.75cm), above: 6pt, below: 6pt)[
+  set par(first-line-indent: (amount: 0.375cm, all: true), justify: true, leading: interlinia, spacing: interlinia)
+  block(inset: (left: 0.75cm), above: interlinia, below: interlinia)[
     #tresc
     #if odsylacz != none [ #odsylacz]
   ]
@@ -240,6 +251,7 @@
     },
   )
 
+  set text(top-edge: wiersz-gora, bottom-edge: wiersz-dol)
   set par(
     leading: interlinia,
     spacing: interlinia,
@@ -254,7 +266,7 @@
   set math.equation(numbering: "(1)", supplement: [])
   set list(indent: 0.75cm, body-indent: 0.45em, spacing: interlinia, marker: ([•], [–], [·]))
   set enum(indent: 0.75cm, body-indent: 0.45em, spacing: interlinia, numbering: "1)")
-  set table(stroke: 0.5pt, inset: (x: 6pt, y: 4pt), align: center)
+  set table(stroke: 0.5pt, inset: (x: 6pt, y: 2pt), align: center)
   set quote(block: true)
   set smartquote(quotes: "„”", alternative: true)
   set bibliography(title: none, style: "/szablon/style/ans-harvard.csl")
@@ -264,11 +276,12 @@
   show heading: set text(hyphenate: false)
   show heading: set par(first-line-indent: 0pt, justify: false, hanging-indent: 0pt)
   show heading.where(level: 1): set text(size: 16pt, weight: "bold")
-  show heading.where(level: 1): set block(above: 12pt, below: 12pt, sticky: true)
+  // Odstęp przed i po tytule dodaje się do zwykłej interlinii, jak w edytorze tekstu.
+  show heading.where(level: 1): set block(above: interlinia + 12pt, below: interlinia + 12pt, sticky: true)
   show heading.where(level: 2): set text(size: 14pt, weight: "bold")
-  show heading.where(level: 2): set block(above: 6pt, below: 6pt, sticky: true)
+  show heading.where(level: 2): set block(above: interlinia + 6pt, below: interlinia + 6pt, sticky: true)
   show heading.where(level: 3): set text(size: 14pt, weight: "bold")
-  show heading.where(level: 3): set block(above: 6pt, below: 6pt, sticky: true)
+  show heading.where(level: 3): set block(above: interlinia + 6pt, below: interlinia + 6pt, sticky: true)
   show heading.where(level: 1): it => {
     pagebreak(weak: true)
     it
@@ -281,7 +294,7 @@
     leading: interlinia,
     spacing: interlinia,
   )
-  show outline.entry: set block(above: 12.7pt, below: 12.7pt)
+  show outline.entry: set block(above: interlinia, below: interlinia)
   // Wykazy rysunków, tabel i załączników: 11 pkt. Po numerze rysunku kropka.
   show outline.entry: it => {
     if it.element.func() != figure {
@@ -300,11 +313,16 @@
   }
 
   show footnote.entry: set text(size: 10pt)
-  show footnote.entry: set par(leading: 0.35em, spacing: 0.35em, first-line-indent: 0pt, justify: false)
+  show footnote.entry: set par(
+    leading: interlinia-pojedyncza,
+    spacing: interlinia-pojedyncza,
+    first-line-indent: 0pt,
+    justify: false,
+  )
 
   show raw: set text(font: font-mono, size: 10pt)
   show raw.where(block: true): it => {
-    set par(leading: interlinia-kod, spacing: interlinia-kod, first-line-indent: 0pt, justify: false)
+    set par(leading: interlinia-pojedyncza, spacing: interlinia-pojedyncza, first-line-indent: 0pt, justify: false)
     set text(hyphenate: false)
     block(
       width: 100%,
@@ -312,20 +330,20 @@
       fill: luma(247),
       stroke: 0.4pt + luma(170),
       breakable: true,
-      above: 12pt,
-      below: 12pt,
+      above: wolna-linia,
+      below: wolna-linia,
       it,
     )
   }
 
-  show math.equation.where(block: true): set block(above: linia, below: linia)
+  show math.equation.where(block: true): set block(above: wolna-linia, below: wolna-linia)
   show math.equation: set text(weight: "regular")
 
   show figure.where(kind: image): it => {
-    set par(first-line-indent: 0pt, justify: false, leading: 0.35em)
+    set par(first-line-indent: 0pt, justify: false, leading: interlinia-pojedyncza, spacing: interlinia-pojedyncza)
     let nawias-l = "\u{005B}"
     let nawias-p = "\u{005D}"
-    block(above: linia, below: linia, breakable: false)[
+    block(above: wolna-linia, below: wolna-linia, breakable: false)[
       #align(center, it.body)
       #v(6pt)
       #align(center)[
@@ -349,8 +367,8 @@
   // Długa tabela może przejść na kolejną stronę; nagłówek powtarza `table.header`.
   show figure.where(kind: table): set block(breakable: true)
   show figure.where(kind: table): it => {
-    set par(first-line-indent: 0pt, justify: false)
-    block(above: linia, below: linia)[
+    set par(first-line-indent: 0pt, justify: false, leading: interlinia-pojedyncza, spacing: interlinia-pojedyncza)
+    block(above: wolna-linia, below: wolna-linia)[
       #align(right, text(size: 11pt)[
         Tabela #context counter(figure.where(kind: table)).display() \
         #it.caption.body
@@ -364,7 +382,7 @@
     pagebreak(weak: true)
     set text(size: 16pt, weight: "bold", hyphenate: false)
     set par(first-line-indent: 0pt, justify: false)
-    block(above: 12pt, below: 12pt, sticky: true)[
+    block(above: interlinia + 12pt, below: interlinia + 12pt, sticky: true)[
       Załącznik #context counter(figure.where(kind: "zalacznik")).display(). #it.caption.body
     ]
   }
